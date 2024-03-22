@@ -1,83 +1,60 @@
-import React, { useState } from 'react';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import './App.css';
 
-const finalSpaceCharacters = [
-  {
-    id: 'gary',
-    name: 'Gary Goodspeed',
-    thumb: '/images/gary.png'
-  },
-  {
-    id: 'cato',
-    name: 'Little Cato',
-    thumb: '/images/cato.png'
-  },
-  {
-    id: 'kvn',
-    name: 'KVN',
-    thumb: '/images/kvn.png'
-  },
-  {
-    id: 'mooncake',
-    name: 'Mooncake',
-    thumb: '/images/mooncake.png'
-  },
-  {
-    id: 'quinn',
-    name: 'Quinn Ergon',
-    thumb: '/images/quinn.png'
-  }
-]
+import './App.css';
+import React, { useState, useEffect } from "react";
 
 function App() {
-  const [characters, updateCharacters] = useState(finalSpaceCharacters);
 
-  function handleOnDragEnd(result) {
-    if (!result.destination) return;
+  const images = [
+    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS3oo0tHTZ0hgXIfdUjC7TIeTOCXhUpvRBd3g&usqp=CAU",
+   "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS3oo0tHTZ0hgXIfdUjC7TIeTOCXhUpvRBd3g&usqp=CAU",
+    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS3oo0tHTZ0hgXIfdUjC7TIeTOCXhUpvRBd3g&usqp=CAU",
+    // Add more image URLs as needed
+  ];
+  const [currentSlide, setCurrentSlide] = useState(0);
 
-    const items = Array.from(characters);
-    const [reorderedItem] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reorderedItem);
+  const handleThumbnailClick = (index) => {
+    setCurrentSlide(index);
+  };
 
-    updateCharacters(items);
-  }
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentSlide((prevSlide) => (prevSlide + 1) % images.length);
+    }, 3000); // Change slide every 3 seconds (adjust as needed)
+
+    return () => clearInterval(interval);
+  }, [images.length]);  
+
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <h1>Final Space Characters</h1>
-        <DragDropContext onDragEnd={handleOnDragEnd}>
-          <Droppable droppableId="characters">
-            {(provided) => (
-              <ul className="characters" {...provided.droppableProps} ref={provided.innerRef}>
-                {characters.map(({id, name, thumb}, index) => {
-                  return (
-                    <Draggable key={id} draggableId={id} index={index}>
-                      {(provided) => (
-                        <li ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-                          <div className="characters-thumb">
-                            <img src={thumb} alt={`${name} Thumb`} />
-                          </div>
-                          <p>
-                            { name }
-                          </p>
-                        </li>
-                      )}
-                    </Draggable>
-                  );
-                })}
-                {provided.placeholder}
-              </ul>
-            )}
-          </Droppable>
-        </DragDropContext>
-      </header>
-      <p>
-        Images from <a href="https://final-space.fandom.com/wiki/Final_Space_Wiki">Final Space Wiki</a>
-      </p>
+     <div className='app'>
+      <div className="slider-container">
+      <div
+        className="slider"
+        style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+      >
+        {images.map((image, index) => (
+          <div key={index} className="slide">
+            <img src={image} alt={`Slide ${index + 1}`} />
+          </div>
+        ))}
+      </div>
+      </div>
+    
+      <div className="slider-nav">
+        {images.map((image, index) => (
+          <img
+            key={index}
+            src={image}
+            alt={`Thumbnail ${index + 1}`}
+            className={index === currentSlide ? "active" : ""}
+            onClick={() => handleThumbnailClick(index)}
+          />
+        ))}
+      </div>
     </div>
   );
+
 }
 
 export default App;
